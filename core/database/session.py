@@ -1,5 +1,5 @@
 from contextvars import ContextVar, Token
-from typing import Union
+from typing import Union,Any
 
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import (
 )
 from sqlalchemy.orm import Session, declarative_base, sessionmaker
 from sqlalchemy.sql.expression import Delete, Insert, Update
+from sqlalchemy.ext.declarative import as_declarative, declared_attr
 
 from core.config import config
 
@@ -63,5 +64,14 @@ async def get_session():
     finally:
         await session.close()
 
+@as_declarative()
+class Base:
+    id: Any
+    __name__: str
+
+    # Generate __tablename__ automatically
+    @declared_attr
+    def __tablename__(cls) -> str:
+        return cls.__name__.lower()
 
 Base = declarative_base()
