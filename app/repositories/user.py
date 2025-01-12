@@ -20,7 +20,7 @@ class UserRepository(BaseRepository[User]):
         :param join_: Join relations.
         :return: User.
         """
-        query = await self._query(join_)
+        query = self._query(join_)
         query = query.filter(User.username == username)
 
         if join_ is not None:
@@ -38,7 +38,7 @@ class UserRepository(BaseRepository[User]):
         :param join_: Join relations.
         :return: User.
         """
-        query = await self._query(join_)
+        query = self._query(join_)
         query = query.filter(User.email == email)
 
         if join_ is not None:
