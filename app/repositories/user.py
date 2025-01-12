@@ -45,14 +45,3 @@ class UserRepository(BaseRepository[User]):
             return await self.all_unique(query)
    
         return await self._one_or_none(query)
-
-    def _join_tasks(self, query: Select) -> Select:
-        """
-        Join tasks.
-
-        :param query: Query.
-        :return: Query.
-        """
-        return query.options(joinedload(User.tasks)).execution_options(
-            contains_joined_collection=True
-        )
