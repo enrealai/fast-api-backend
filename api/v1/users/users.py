@@ -3,13 +3,12 @@ from typing import Callable
 from fastapi import APIRouter, Depends
 
 from app.controllers import AuthController, UserController
-from app.models.user import User, UserPermission
+from app.models.user import UserPermission
 from app.schemas.extras.token import Token
-from app.schemas.requests.users import LoginUserRequest, RegisterUserRequest
+from app.schemas.requests.users import LoginUserRequest, RegisterUserRequest, UserInfoRequest
 from app.schemas.responses.users import UserResponse
 from core.factory import Factory
 from core.fastapi.dependencies import AuthenticationRequired
-from core.fastapi.dependencies.current_user import get_current_user
 from core.fastapi.dependencies.permissions import Permissions
 
 user_router = APIRouter()
@@ -48,8 +47,11 @@ async def login_user(
     )
 
 
-@user_router.get("/me", dependencies=[Depends(AuthenticationRequired)])
-def get_user(
-    user: User = Depends(get_current_user),
+@user_router.get("/user", dependencies=[Depends(AuthenticationRequired)])
+async def get_users(
+    user_info_request: UserInfoRequest,
+    user_controller: UserController = Depends(Factory().get_user_controller),
 ) -> UserResponse:
-    return user
+    return await user_controller.get_by_username(
+        username = user_info_request.username
+    )
