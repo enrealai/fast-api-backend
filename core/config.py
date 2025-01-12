@@ -18,9 +18,7 @@ class Config(BaseConfig):
     DEBUG: int = 0
     DEFAULT_LOCALE: str = "en_US"
     ENVIRONMENT: str = EnvironmentType.DEVELOPMENT
-    POSTGRES_URL: PostgresDsn = (
-        "postgresql+asyncpg://user:password@127.0.0.1:5432/db-name"
-    )
+    POSTGRES_URL: PostgresDsn =  "postgresql+asyncpg://postgres:password123@127.0.0.1:5432/fastapi-db"
     REDIS_URL: RedisDsn = "redis://localhost:6379/7"
     RELEASE_VERSION: str = "0.1"
     SHOW_SQL_ALCHEMY_QUERIES: int = 0
