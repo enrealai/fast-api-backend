@@ -2,5 +2,5 @@ from pydantic import BaseModel
 
 
 class Token(BaseModel):
-    access_token: str
+    auth_token: str
     refresh_token: str

@@ -1,48 +1,43 @@
 from typing import Optional, Tuple
 
-from jose import JWTError, jwt
+from jose import JWTError
+from fastapi import Request
 from starlette.authentication import AuthenticationBackend
 from starlette.middleware.authentication import (
     AuthenticationMiddleware as BaseAuthenticationMiddleware,
 )
-from starlette.requests import HTTPConnection
 
-from app.schemas.extras.current_user import CurrentUser
-from core.config import config
-
+from core.security.jwt import JWTHandler
 
 class AuthBackend(AuthenticationBackend):
+    def __init__(self, require_user_id_match: bool = True):
+        self.require_user_id_match = require_user_id_match
+
     async def authenticate(
-        self, conn: HTTPConnection
-    ) -> Tuple[bool, Optional[CurrentUser]]:
-        current_user = CurrentUser()
-        authorization: str = conn.headers.get("Authorization")
-        if not authorization:
-            return False, current_user
+        self, request: Request
+    ) -> Tuple[bool, Optional[str]]:
+        authorization: str = request.headers.get("Authorization")
+        user_id: str = request.headers.get("user_id")
+        if not authorization or not user_id:
+            return False, None
 
         try:
             scheme, token = authorization.split(" ")
             if scheme.lower() != "bearer":
-                return False, current_user
+                return False, None
         except ValueError:
-            return False, current_user
+            return False, None
 
         if not token:
-            return False, current_user
-
+            return False, None
         try:
-            payload = jwt.decode(
-                token,
-                config.SECRET_KEY,
-                algorithms=[config.JWT_ALGORITHM],
-            )
-            user_id = payload.get("user_id")
+            tokenPayload = JWTHandler.decode(token)
+            if self.require_user_id_match and user_id != tokenPayload.get("user_id"):
+                return False, None
         except JWTError:
-            return False, current_user
+            return False, None
 
-        current_user.id = user_id
-        return True, current_user
-
+        return True, user_id
 
 class AuthenticationMiddleware(BaseAuthenticationMiddleware):
     pass

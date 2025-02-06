@@ -2,9 +2,9 @@ from http import HTTPStatus
 
 from fastapi import Depends, Request
 
-from app.controllers.user import UserController
+from app.controllers.userController import UserController
 from core.exceptions import CustomException
-from core.factory import Factory
+from app.container import Container
 from core.security.access_control import (
     AccessControl,
     Authenticated,
@@ -22,7 +22,7 @@ class InsufficientPermissionsException(CustomException):
 
 async def get_user_principals(
     request: Request,
-    user_controller: UserController = Depends(Factory().get_user_controller),
+    user_controller: UserController = Depends(Container().get_user_controller),
 ) -> list:
     user_id = request.user.id
     principals = [Everyone]
@@ -30,7 +30,7 @@ async def get_user_principals(
     if not user_id:
         return principals
 
-    user = await user_controller.get_by_id(id_=user_id)
+    user = await user_controller.get_by(field="uuid", value=user_id)
 
     principals.append(Authenticated)
     principals.append(UserPrincipal(user.id))
@@ -42,6 +42,6 @@ async def get_user_principals(
 
 
 Permissions = AccessControl(
-    user_principals_getter=get_user_principals,
+    principals_getter=get_user_principals,
     permission_exception=InsufficientPermissionsException,
 )

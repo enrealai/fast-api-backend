@@ -3,17 +3,17 @@ from pydantic import BaseModel
 
 from core.database import Base, Propagation, Transactional
 from core.exceptions import NotFoundException
-from core.services import BaseService
+from core.repository import BaseRepository
 
 ModelType = TypeVar("ModelType", bound=Base)
 
 
-class BaseController(Generic[ModelType]):
-    """Base class for data controllers."""
+class BaseService(Generic[ModelType]):
+    """Base class for services."""
 
-    def __init__(self, model: Type[ModelType], service: BaseService):
+    def __init__(self, model: Type[ModelType], repository: BaseRepository):
         self.model_class = model
-        self.service = service
+        self.repository = repository
 
     @Transactional(propagation=Propagation.REQUIRED)
     async def create(self, attributes: dict[str, Any]) -> ModelType:
@@ -23,7 +23,7 @@ class BaseController(Generic[ModelType]):
         :param attributes: The attributes to create the object with.
         :return: The created object.
         """
-        create = await self.service.create(attributes)
+        create = await self.repository.create(attributes)
         return create
 
     @Transactional(propagation=Propagation.REQUIRED)
@@ -34,7 +34,7 @@ class BaseController(Generic[ModelType]):
         :param model: The model to delete.
         :return: True if the object was deleted, False otherwise.
         """
-        delete = await self.service.delete(model)
+        delete = await self.repository.delete(model)
         return delete
 
     async def get_by(self, field: str, value : Any, join_: set[str] | None = None) -> ModelType:
@@ -46,7 +46,7 @@ class BaseController(Generic[ModelType]):
         :return: The model instance.
         """
 
-        db_obj = await self.service.get_by(
+        db_obj = await self.repository.get_by(
             field=field, value=value, join_=join_, unique=True
         )
         if not db_obj:
@@ -68,7 +68,7 @@ class BaseController(Generic[ModelType]):
         :return: A list of records.
         """
 
-        response = await self.service.get_all(skip, limit, join_)
+        response = await self.repository.get_all(skip, limit, join_)
         return response
 
     

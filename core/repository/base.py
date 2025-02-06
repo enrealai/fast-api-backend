@@ -29,25 +29,15 @@ class BaseRepository(Generic[ModelType]):
         model = self.model_class(**attributes)
         self.session.add(model)
         return model
-
-    async def get_all(
-        self, skip: int = 0, limit: int = 100, join_: set[str] | None = None
-    ) -> list[ModelType]:
+    
+    async def delete(self, model: ModelType) -> None:
         """
-        Returns a list of model instances.
+        Deletes the model.
 
-        :param skip: The number of records to skip.
-        :param limit: The number of record to return.
-        :param join_: The joins to make.
-        :return: A list of model instances.
+        :param model: The model to delete.
+        :return: None
         """
-        query = self._query(join_)
-        query = query.offset(skip).limit(limit)
-
-        if join_ is not None:
-            return await self.all_unique(query)
-            
-        return await self._all(query)
+        self.session.delete(model)
 
     async def get_by(
         self,
@@ -73,15 +63,25 @@ class BaseRepository(Generic[ModelType]):
             return await self._one(query)
 
         return await self._all(query)
-
-    async def delete(self, model: ModelType) -> None:
+    
+    async def get_all(
+        self, skip: int = 0, limit: int = 100, join_: set[str] | None = None
+    ) -> list[ModelType]:
         """
-        Deletes the model.
+        Returns a list of model instances.
 
-        :param model: The model to delete.
-        :return: None
+        :param skip: The number of records to skip.
+        :param limit: The number of record to return.
+        :param join_: The joins to make.
+        :return: A list of model instances.
         """
-        self.session.delete(model)
+        query = self._query(join_)
+        query = query.offset(skip).limit(limit)
+
+        if join_ is not None:
+            return await self.all_unique(query)
+            
+        return await self._all(query)
 
     def _query(
         self,

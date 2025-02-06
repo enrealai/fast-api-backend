@@ -1,6 +1,6 @@
 from typing import List
 
-from fastapi import Depends, FastAPI, Request
+from fastapi import Depends, FastAPI, Request 
 from fastapi.middleware import Middleware
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -71,7 +71,7 @@ def init_cache() -> None:
 def create_app() -> FastAPI:
     app_ = FastAPI(
         title="FastAPI Boilerplate",
-        description="FastAPI Boilerplate by @iam-abbas",
+        description="FastAPI Boilerplate by @enrealai",
         version="1.0.0",
         docs_url=None if config.ENVIRONMENT == "production" else "/docs",
         redoc_url=None if config.ENVIRONMENT == "production" else "/redoc",

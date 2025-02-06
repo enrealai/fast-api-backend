@@ -72,14 +72,14 @@ default_exception = HTTPException(status_code=HTTP_403_FORBIDDEN, detail="Forbid
 class AccessControl:
     def __init__(
         self,
-        user_principals_getter: Any,
+        principals_getter: Any,
         permission_exception: Any = default_exception,
     ) -> None:
-        self.user_principals_getter = user_principals_getter
+        self.principals_getter = principals_getter
         self.permission_exception = permission_exception
 
     def __call__(self, permissions: str):
-        def _permission_dependency(principals=Depends(self.user_principals_getter)):
+        def _permission_dependency(principals=Depends(self.principals_getter)):
             assert_access = functools.partial(
                 self.assert_access, principals, permissions
             )

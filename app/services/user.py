@@ -2,7 +2,7 @@ from app.models import User
 from core.repository import BaseRepository
 
 
-class UserRepository(BaseRepository[User]):
+class UserService(BaseRepository[User]):
     """
     User repository provides all the database operations for the User model.
     """
